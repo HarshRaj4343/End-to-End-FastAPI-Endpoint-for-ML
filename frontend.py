@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_URL = "http://localhost:8000/predict" 
+API_URL = "http://16.176.185.84:8000/predict" 
 
 st.title("Insurance Premium Category Predictor")
 st.markdown("Enter your details below:")
@@ -34,9 +34,42 @@ if st.button("Predict Premium Category"):
         result = response.json()
 
         if response.status_code == 200:
-            st.success(
-                f"Predicted Insurance Premium Category: {result['predicted_category']}"
-            )
+
+            prediction = result["predicted_category"]
+
+            st.success("Prediction Completed")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric(
+                    label="Premium Category",
+                    value=prediction["predicted_category"]
+                )
+
+            with col2:
+                st.metric(
+                    label="Confidence",
+                    value=f"{prediction['confidence']:.2%}"
+                )
+
+            st.subheader("Class Probabilities")
+
+            probs = prediction["class_probabilities"]
+
+            st.progress(float(probs["Low"]))
+            st.write(f"🟢 Low: {probs['Low']:.2%}")
+
+            st.progress(float(probs["Medium"]))
+            st.write(f"🟡 Medium: {probs['Medium']:.2%}")
+
+            st.progress(float(probs["High"]))
+            st.write(f"🔴 High: {probs['High']:.2%}")
+
+            st.subheader("Probability Distribution")
+
+            st.bar_chart(probs)
+
         else:
             st.error(f"API Error: {response.status_code}")
             st.write(result)
