@@ -5,6 +5,7 @@ from typing import Literal, Annotated, Optional
 from schema.schema import Schema
 from Model.predict import predict_output,model,MODEL_VERSION
 from fastapi.responses import JSONResponse
+from schema.response_model import PredictionResponse
 
 app = FastAPI() 
 # In pydantic v2 , every @computed_field must have a return type.
@@ -21,7 +22,7 @@ def health_check():
         'version':MODEL_VERSION
     }
 
-@app.post("/predict")
+@app.post("/predict",response_model=PredictionResponse)
 def predict(details: Schema):
     user_input ={
         'bmi': details.bmi,
